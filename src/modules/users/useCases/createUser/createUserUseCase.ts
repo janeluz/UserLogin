@@ -35,6 +35,7 @@ class CreateUserUseCase {
       age,
       phone
     })
+     
     return user
   }
 }

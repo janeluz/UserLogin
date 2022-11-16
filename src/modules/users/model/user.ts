@@ -6,6 +6,7 @@ class User {
   name: string;
   age: string;
   phone: string;
+  isAdmin: any;
  
 
 

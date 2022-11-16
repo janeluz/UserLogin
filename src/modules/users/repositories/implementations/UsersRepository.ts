@@ -1,7 +1,9 @@
+import { response } from 'express'
 import { User } from '../../model/user'
 import { IUsersRepository, IcreateUserDto } from '../IUsersRepository'
 
 class UsersRepository implements IUsersRepository {
+
   private users: User[]
 
   private static INSTANCE: UsersRepository
@@ -32,10 +34,14 @@ class UsersRepository implements IUsersRepository {
   list(): User[] {
     return this.users
   }
-  findByEmail(email: string): User | undefined {
+  findByEmail(email: string): User  {
     const user = this.users.find(user => user.email === email)
-    return user
+    return user as any
   }
+  async findById(id: string): Promise<User> {
+    const user = this.users.findIndex(user => user.id === id);
+    return user as any;
+}
 }
 
 export { UsersRepository }

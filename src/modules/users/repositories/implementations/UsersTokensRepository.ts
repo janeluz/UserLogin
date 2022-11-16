@@ -1,30 +1,39 @@
-import { stringify } from 'querystring';
 import { ICreateUserTokenDto } from '../../../../dtos/ICreateUserTokenDTO';
 import { UserTokens } from '../../model/userToken';
 import { IUsersTokensRepository } from '../IUsersTokensRepository';
 
 
+
 class UsersTokensRepository implements IUsersTokensRepository {
-  usersTokens: UserTokens [] = [];
 
-  async create({
-   
-    refreshToken,
-    userId,
-  }: ICreateUserTokenDto): Promise<UserTokens> {
-    const usersTokens = new UserTokens(refreshToken, userId);
-
-    Object.assign(usersTokens, {
+  private userTokens :UserTokens[];
+  
+  private static INSTANCE: UsersTokensRepository
+  constructor() {
+    this.userTokens= [];
+  }
+  
+  public static getInstance(): UsersTokensRepository{
+    if (!UsersTokensRepository.INSTANCE) {
+      UsersTokensRepository.INSTANCE = new UsersTokensRepository()
+    }
+    return UsersTokensRepository.INSTANCE
+  }
+    create({ refreshToken, userId}: ICreateUserTokenDto): UserTokens{
+    const tokens = new UserTokens(refreshToken,userId);
+  
+    Object.assign(tokens,{
       refreshToken,
       userId,
+      
     });
-    this.usersTokens.push(usersTokens);
-    return usersTokens;
+     this.userTokens.push(tokens);
+     return tokens;
+    }
+    findByRefresh(refreshToken: string): UserTokens |undefined {
+      const tokens = this.userTokens.find((tokens) => tokens.refreshToken === refreshToken);
+  
+      return tokens;
+    }
   }
-  findById(user_id: string): Promise<void> {
-    const updateToken = this.usersTokens.findIndex(user => user.userId === user_id);
-    
-  }
-}
-
-export { UsersTokensRepository };
+  export { UsersTokensRepository };

@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction, request } from 'express'
 import { verify } from 'jsonwebtoken'
 import { AppError } from '../errors/AppError'
 import { UsersRepository } from '../modules/users/repositories/implementations/UsersRepository'
+
 interface IPayload {
   sub: string
 }
@@ -14,7 +15,7 @@ export async function ensureAuthenticated(
   const authHeader = request.headers.authorization
 
   if (!authHeader) {
-    throw new AppError('token missing')
+    throw new AppError('token is  missing',401)
   }
 
   // [0] = Beaher
@@ -40,3 +41,5 @@ export async function ensureAuthenticated(
     throw new AppError('invalid token')
   }
 }
+
+

@@ -1,7 +1,10 @@
 import { compare } from 'bcrypt'
+import dayjs from 'dayjs'
 import { sign } from 'jsonwebtoken'
 import auth from '../../../../config/auth'
 import { AppError } from '../../../../errors/AppError'
+import { GenerateRefreshToken } from '../../../provider/generateRefreshToken'
+import { UsersTokensRepository } from '../../repositories/implementations/UsersTokensRepository'
 
 import { IUsersRepository } from '../../repositories/IUsersRepository'
 
@@ -21,7 +24,10 @@ interface IResponse {
 }
 
 class CreateSessionUseCase {
-  constructor(private usersRepository: IUsersRepository) {}
+  constructor(
+    private usersRepository: IUsersRepository,
+    private usersTokensRepository: UsersTokensRepository
+  ) {}
 
   async execute({ email, password }: IRequest): Promise<IResponse> {
     const user = this.usersRepository.findByEmail(email)
@@ -30,10 +36,11 @@ class CreateSessionUseCase {
       throw new AppError('Email or password incorrect.')
     }
     const {
-      expiresIn,
+      expiresInToken,
       secretToken,
       secretRefreshToken,
-      expiresInRefreshToken
+      expiresInRefreshToken,
+      expiresRefreshTokenDays
     } = auth
 
     const passwordMatch = await compare(password, user.password)
@@ -42,29 +49,15 @@ class CreateSessionUseCase {
       throw new AppError('Email or password incorrect.')
     }
 
-    const token = sign({ user }, secretToken, {
+    const token = sign({ email }, secretToken, {
       subject: user.id,
-      expiresIn: expiresIn
-    })
-    const refreshToken = sign({ user }, secretRefreshToken, {
-      subject: user.id,
-      expiresIn: expiresInRefreshToken
-    })
-    this.usersRepository.create({
-      id: user.id,
-      refreshToken
+      expiresIn: expiresInToken
     })
 
-    const tokenReturn: IResponse = {
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email
-      },
-      refreshToken
-    }
-    return tokenReturn
+    const generateRefreshToken = new GenerateRefreshToken()
+    const refreshToken = await generateRefreshToken.execute(user.id)
+
+    return { token, refreshToken }
   }
 }
 

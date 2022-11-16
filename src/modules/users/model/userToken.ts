@@ -6,7 +6,8 @@ class UserTokens {
   userId: string;
   
   constructor( refreshToken: string, userId: string) {
-    this.refreshToken = refreshToken;
+    
+    this.refreshToken =refreshToken;
     this.userId = userId;
   }
 }

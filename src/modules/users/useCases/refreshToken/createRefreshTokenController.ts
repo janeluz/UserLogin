@@ -1,16 +1,16 @@
-import { UserTokens } from "../../model/userToken";
-import { RefreshTokenUseCase } from "./createRefreshTokenUseCase";
+// import { UserTokens } from "../../model/userToken";
+// import { RefreshTokenUseCase } from "./createRefreshTokenUseCase";
 
-class RefreshTokenController {
-  constructor(private refreshTokenUseCase: RefreshTokenUseCase){}
+// class RefreshTokenController {
+//   constructor(private refreshTokenUseCase: RefreshTokenUseCase){}
 
-   async handle(request: Request, response: Response) : Promise<UserTokens>{
+//    async handle(request: Request, response: Response) : Promise<UserTokens>{
     
-    const   refreshToken   = request.body;
+//     const   refreshToken   = request.body;
       
-     const  newToken =  await this.refreshTokenUseCase.execute(refreshToken);
+//      const  newToken =  await this.refreshTokenUseCase.execute(refreshToken);
     
-    return response.json(newToken);
-  }
-}
-export { RefreshTokenController };
+//     return response.json();
+//   }
+// }
+// export { RefreshTokenController };

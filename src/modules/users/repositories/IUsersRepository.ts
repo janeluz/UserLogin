@@ -11,9 +11,9 @@ interface IcreateUserDto {
 
 
 interface IUsersRepository {
-  create({email,password,name, age,phone}: IcreateUserDto):User;
-  list(): User[];
-  findByEmail(email:string): User;
+  create({email,password,name, age,phone}: IcreateUserDto):Promise<User>;
+  list():Promise<User[]>;
+  findByEmail(email:string):Promise< User>;
   findById(id:string): Promise<User>;
 }
 

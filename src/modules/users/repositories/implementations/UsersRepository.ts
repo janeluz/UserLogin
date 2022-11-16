@@ -1,26 +1,24 @@
 import { response } from 'express'
+import { Repository } from 'typeorm'
+import { AppDataSource } from '../../../..'
 import { User } from '../../model/user'
 import { IUsersRepository, IcreateUserDto } from '../IUsersRepository'
 
 class UsersRepository implements IUsersRepository {
+  private repository: Repository<User>
 
-  private users: User[]
-
-  private static INSTANCE: UsersRepository
-  private constructor() {
-    this.users = []
+  constructor() {
+    this.repository = AppDataSource.getRepository(User)
   }
 
-  public static getInstance(): UsersRepository {
-    if (!UsersRepository.INSTANCE) {
-      UsersRepository.INSTANCE = new UsersRepository()
-    }
-    return UsersRepository.INSTANCE
-  }
-  create({ email, password, name, age, phone }: IcreateUserDto): User {
-    const user = new User(email, password, name, age, phone)
-
-    Object.assign(user, {
+  async create({
+    email,
+    password,
+    name,
+    age,
+    phone
+  }: IcreateUserDto): Promise<User> {
+    const user = this.repository.create({
       email,
       password,
       name,
@@ -28,20 +26,21 @@ class UsersRepository implements IUsersRepository {
       phone
     })
 
-    this.users.push(user)
+    await this.repository.save(user)
     return user
   }
-  list(): User[] {
-    return this.users
+  async list(): Promise<User[]> {
+    const users = await this.repository.find()
+    return users
   }
-  findByEmail(email: string): User  {
-    const user = this.users.find(user => user.email === email)
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.repository.findOneBy({ email })
     return user as any
   }
   async findById(id: string): Promise<User> {
-    const user = this.users.findIndex(user => user.id === id);
-    return user as any;
-}
+    const user = await this.repository.findOneBy({ id })
+    return user as any
+  }
 }
 
 export { UsersRepository }
